@@ -124,7 +124,7 @@ function iform_remote_download_authenticate() {
   $usersecret_field = 'field_iform_auth_shared_secret';
   // Step 1
   // Verify APP shared secret
-  if (iform_mobile_auth_authorise_app(null, $appsecret))
+  if (!iform_mobile_auth_authorise_app(null, $appsecret))
   {
     watchdog('iform RD', 'Missing or incorrect shared app secret');
     drupal_add_http_header('Status', '400 Bad Request');
