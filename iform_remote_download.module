@@ -87,7 +87,7 @@ function iform_remote_download_download() {
     'extraParams' => array(
       'date_from' => $_POST['date_from'],
       'date_to' => $_POST['date_to'],
-      'quality' => '!R',  // todo: parameterise
+      'quality' => empty($_POST['quality']) ? '!R' : $_POST['quality'],
       'smpattrs' => empty($_POST['smpAttrs']) ? '' : $_POST['smpAttrs'],
       'occattrs' => empty($_POST['occAttrs']) ? '' : $_POST['occAttrs'],
       'searchArea' => '',
@@ -118,14 +118,13 @@ function iform_remote_download_download() {
  * Authenticates the download appsecret, usersecret are correct and returns TRUE if OK.
  */
 function iform_remote_download_authenticate() {
-  $shared_secret = variable_get('iform_mobile_auth_shared_secret',NULL);
   $usersecret = $_POST['usersecret'];
   $appsecret = $_POST['appsecret'];
   $email = $_POST['email'];
   $usersecret_field = 'field_iform_auth_shared_secret';
   // Step 1
   // Verify APP shared secret
-  if (empty($appsecret) || trim($appsecret) != trim($shared_secret))
+  if (!iform_mobile_auth_authorise_app(null, $appsecret))
   {
     watchdog('iform RD', 'Missing or incorrect shared app secret');
     drupal_add_http_header('Status', '400 Bad Request');
