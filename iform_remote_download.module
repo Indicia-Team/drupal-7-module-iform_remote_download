@@ -6,7 +6,7 @@
 iform_load_helpers(array('report_helper', 'data_entry_helper'));
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function iform_remote_download_menu() {
   $items = array();
@@ -188,6 +188,8 @@ function iform_remote_download_authenticate() {
  * filters associated with the user provided in the uid or indicia_user_id
  * $_GET parameter. Optionally provide a filter_id query to restrict to a
  * single filter.
+ *
+ * Pass a limit or offset parameter to perform the output in chunks.
  */
 function iform_remote_download_autogenerate() {
   $indicia_user_id = FALSE;
@@ -212,7 +214,7 @@ function iform_remote_download_autogenerate() {
     'extraParams' => array(
       'filter_sharing_mode' => 'D',
       'defines_permissions' => '',
-      'filter_user_id' => $indicia_user_id
+      'filter_user_id' => $indicia_user_id,
     ),
   ));
   if (count($filters) === 0) {
@@ -229,7 +231,13 @@ function iform_remote_download_autogenerate() {
     print "Unable to create directory $filepath";
     return;
   };
-  foreach ($filters as $filter) {
+  // Defaults for limit and offset parameters.
+  $limit = empty($_GET['limit']) ? count($filters) : $_GET['limit'];
+  $offset = empty($_GET['offset']) ? 0 : $_GET['offset'];
+  foreach ($filters as $idx => $filter) {
+    if ($idx < $offset || $idx >= $offset + $limit) {
+      continue;
+    }
     // Allow a filter_id parameter to restrict to a single filter.
     if (empty($_GET['filter_id']) || $_GET['filter_id'] == $filter['id']) {
       $def = json_decode($filter['definition'], TRUE);
