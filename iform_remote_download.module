@@ -95,6 +95,7 @@ function iform_remote_download_download() {
   catch (Exception $e) {
     $location_id = '';
   }
+
   $options = array(
     'dataSource' => "library/occurrences/$report",
     'readAuth' => $readAuth,
@@ -115,6 +116,8 @@ function iform_remote_download_download() {
       'surveys' => empty($_POST['survey_id']) ? '' : $_POST['survey_id'],
       'ownSurveys' => empty($_POST['survey_id']) ? 0 : 1,
       'uploadFolder' => report_helper::$base_url . 'upload/',
+      'include_unlicensed_media' => variable_get('iform_remote_download_include_unlicensed_media', '0'),
+      'media_licence_ids' => implode(',', variable_get('iform_remote_download_licences', [])),
     ),
     'sharing' => 'data_flow',
   );
@@ -313,5 +316,23 @@ function iform_remote_download_variable_info($options) {
     'default' => '#det_full_name,#sex,#stage,#sex_stage_count',
     'addToIndiciaSettingsPage' => TRUE,
   );
+  $variable['iform_remote_download_include_unlicensed_media'] = [
+    'title' => t('Allow unlicensed media downloads'),
+    'description' => t('Enable remote download of media without an explicit license?'),
+    'type' => 'radios',
+    'options' => [
+      '0' => t('No'),
+      '1' => t('Yes'),
+    ],
+    'default' => '0',
+    'addToIndiciaSettingsPage' => TRUE,
+  ];
+  $variable['iform_remote_download_licences'] = [
+    'title' => t('Download media licences'),
+    'description' => t('Select licences for media which will be downloaded.'),
+    'type' => 'checkboxes',
+    'subtype' => 'licence.title',
+    'addToIndiciaSettingsPage' => TRUE,
+  ];
   return $variable;
 }
